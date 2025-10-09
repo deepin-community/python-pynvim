@@ -1,0 +1,3 @@
+fix-tests-skip-failing-test_broadcast-on-neovim-0.11.patch
+fix-test_connect_stdio-invoke-python3-instead-of-pyt.patch
+increase-jobwait-timeout.patch

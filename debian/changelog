@@ -1,3 +1,49 @@
+python-pynvim (0.5.2-2) unstable; urgency=medium
+
+  * Add python3-greenlet to Depends since dh_python3 did not detect it
+  * test_attach: Increase timeout for jobwait to fix test on riscv64
+  * Use "Testsuite: autopkgtest-pkg-pybuild" instead of manually defining autopkgtests
+
+ -- James McCoy <jamessan@debian.org>  Mon, 17 Mar 2025 22:28:42 -0400
+
+python-pynvim (0.5.2-1) unstable; urgency=medium
+
+  * New upstream release
+    + Replace test use of provider#python3#Prog with neovim's new Lua function
+      (Closes: #1100281)
+  * Add python3-greenlet, python3-pytest-timeout, and
+    python3-typing-extensions to test (Build-)Depends
+  * Backport upstream patch to skip test_broadcast for neovim < 0.11
+  * Bump neovim Build-Depends / test Depends to >= 0.10
+  * Backport upstream patch to invoke python3 instead of python in test_connect_stdio
+
+ -- James McCoy <jamessan@debian.org>  Thu, 13 Mar 2025 13:15:58 -0400
+
+python-pynvim (0.5.0-2) unstable; urgency=medium
+
+  * Backport upstream fix for test failure with Python 3.13 (Closes: #1082401)
+  * Update all URLs to reference pynvim
+  * Declare compliance with Policy 4.7.0, no changes needed
+  * Mark test Build-Depends with <!nocheck> profile
+
+ -- James McCoy <jamessan@debian.org>  Sun, 03 Nov 2024 00:20:57 -0400
+
+python-pynvim (0.5.0-1) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Update standards version to 4.6.2, no changes needed.
+
+  [ James McCoy ]
+  * Remove obsolete transitional package and Breaks/Replaces for
+    python3-neovim (Closes: #1038308)
+  * Remove obsolete Breaks on neovim < 0.2.1
+  * Remove mention of non-existent python2 package in long description
+  * New upstream release
+    + Python 3.12 support (Closes: #1056498)
+  * Add pybuild-plugin-pyproject to Build-Depends
+
+ -- James McCoy <jamessan@debian.org>  Wed, 06 Dec 2023 11:03:30 -0500
+
 python-pynvim (0.4.2-2) unstable; urgency=medium
 
   * Bump debhelper from old 12 to 13.

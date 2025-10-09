@@ -1,0 +1,28 @@
+From e94d68acb888daed31f79c61fb9bca052727e537 Mon Sep 17 00:00:00 2001
+From: James McCoy <jamessan@jamessan.com>
+Date: Wed, 12 Mar 2025 17:18:57 -0400
+Subject: [PATCH] fix(test_connect_stdio): invoke python3 instead of python
+
+"python" is the name for Python 2's interpreter. Since pynvim is now
+Python 3 only, there's no reason to expect the legacy interpreter to be
+available.
+---
+ test/test_attach.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/test_attach.py b/test/test_attach.py
+index c1588ca..25d0822 100644
+--- a/test/test_attach.py
++++ b/test/test_attach.py
+@@ -125,7 +125,7 @@ def test_connect_stdio(vim: Nvim) -> None:
+     ])
+     # see :help jobstart(), *jobstart-options* |msgpack-rpc|
+     jobid = vim.funcs.jobstart([
+-        'python', '-c', remote_py_code,
++        'python3', '-c', remote_py_code,
+     ], {'rpc': True, 'on_stderr': 'OutputHandler'})
+     assert jobid > 0
+     exitcode = vim.funcs.jobwait([jobid], 500)[0]
+-- 
+2.47.2
+

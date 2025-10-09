@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: pynvim
-Source: https://github.com/neovim/python-client
+Source: https://github.com/neovim/pynvim
 Upstream-Contact: Thiago de Arruda <tpadilha84@gmail.com>
 
 
@@ -18,7 +18,9 @@ License: Apache-2.0
 
 
 Files: debian/*
-Copyright: 2015-2016 Víctor Cuadrado Juan <me@viccuad.me>
+Copyright:
+ 2015-2016 Víctor Cuadrado Juan <me@viccuad.me>
+ 2019-2024 James McCoy <jamessan@debian.org>
 License: Apache-2.0
 
 

@@ -1,13 +1,19 @@
 """Asynchronous msgpack-rpc handling in the event loop pipeline."""
 import logging
 from traceback import format_exc
+from typing import Any, AnyStr, Callable, Dict
 
+from pynvim.msgpack_rpc.msgpack_stream import MsgpackStream
 
 logger = logging.getLogger(__name__)
 debug, info, warn = (logger.debug, logger.info, logger.warning,)
 
 
-class AsyncSession(object):
+# response call back takes two arguments: (err, return_value)
+ResponseCallback = Callable[..., None]
+
+
+class AsyncSession:
 
     """Asynchronous msgpack-rpc layer that wraps a msgpack stream.
 
@@ -16,11 +22,11 @@ class AsyncSession(object):
     requests and notifications.
     """
 
-    def __init__(self, msgpack_stream):
+    def __init__(self, msgpack_stream: MsgpackStream):
         """Wrap `msgpack_stream` on a msgpack-rpc interface."""
         self._msgpack_stream = msgpack_stream
         self._next_request_id = 1
-        self._pending_requests = {}
+        self._pending_requests: Dict[int, ResponseCallback] = {}
         self._request_cb = self._notification_cb = None
         self._handlers = {
             0: self._on_request,
@@ -33,7 +39,8 @@ class AsyncSession(object):
         """Wrapper around `MsgpackStream.threadsafe_call`."""
         self._msgpack_stream.threadsafe_call(fn)
 
-    def request(self, method, args, response_cb):
+    def request(self, method: AnyStr, args: Any,
+                response_cb: ResponseCallback) -> None:
         """Send a msgpack-rpc request to Nvim.
 
         A msgpack-rpc with method `method` and argument `args` is sent to
@@ -50,7 +57,7 @@ class AsyncSession(object):
 
         A msgpack-rpc with method `method` and argument `args` is sent to
         Nvim. This will have the same effect as a request, but no response
-        will be recieved
+        will be received
         """
         self._msgpack_stream.send([2, method, args])
 
@@ -81,7 +88,7 @@ class AsyncSession(object):
         except Exception:
             err_str = format_exc(5)
             pass # replaces next logging statement
-            #warn(err_str)
+            # warn(err_str)
             self._msgpack_stream.send([1, 0, err_str, None])
 
     def _on_request(self, msg):
@@ -90,9 +97,10 @@ class AsyncSession(object):
         #   - msg[2]: method name
         #   - msg[3]: arguments
         pass # replaces next logging statement
-        #debug('received request: %s, %s', msg[2], msg[3])
-        self._request_cb(msg[2], msg[3], Response(self._msgpack_stream,
-                                                  msg[1]))
+        # debug('received request: %s, %s', msg[2], msg[3])
+        assert self._request_cb is not None
+        self._request_cb(msg[2], msg[3],
+                         Response(self._msgpack_stream, msg[1]))
 
     def _on_response(self, msg):
         # response to a previous request:
@@ -100,7 +108,7 @@ class AsyncSession(object):
         #   - msg[2]: error(if any)
         #   - msg[3]: result(if not errored)
         pass # replaces next logging statement
-        #debug('received response: %s, %s', msg[2], msg[3])
+        # debug('received response: %s, %s', msg[2], msg[3])
         self._pending_requests.pop(msg[1])(msg[2], msg[3])
 
     def _on_notification(self, msg):
@@ -108,25 +116,25 @@ class AsyncSession(object):
         #   - msg[1]: event name
         #   - msg[2]: arguments
         pass # replaces next logging statement
-        #debug('received notification: %s, %s', msg[1], msg[2])
+        # debug('received notification: %s, %s', msg[1], msg[2])
+        assert self._notification_cb is not None
         self._notification_cb(msg[1], msg[2])
 
     def _on_invalid_message(self, msg):
         error = 'Received invalid message %s' % msg
         pass # replaces next logging statement
-        #warn(error)
+        # warn(error)
         self._msgpack_stream.send([1, 0, error, None])
 
 
-class Response(object):
-
+class Response:
     """Response to a msgpack-rpc request that came from Nvim.
 
     When Nvim sends a msgpack-rpc request, an instance of this class is
     created for remembering state required to send a response.
     """
 
-    def __init__(self, msgpack_stream, request_id):
+    def __init__(self, msgpack_stream: MsgpackStream, request_id: int):
         """Initialize the Response instance."""
         self._msgpack_stream = msgpack_stream
         self._request_id = request_id
@@ -141,5 +149,5 @@ class Response(object):
         else:
             resp = [1, self._request_id, None, value]
         pass # replaces next logging statement
-        #debug('sending response to request %d: %s', self._request_id, resp)
+        # debug('sending response to request %d: %s', self._request_id, resp)
         self._msgpack_stream.send(resp)

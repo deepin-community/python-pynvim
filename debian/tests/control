@@ -1,2 +1,0 @@
-Tests: python3-pynvim
-Depends: python3-all, python3-pynvim, python3-pytest (>= 3.4.0), neovim
